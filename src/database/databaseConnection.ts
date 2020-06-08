@@ -9,11 +9,9 @@ export class DatabaseConnection {
     private connection: Connection;
     private configuration: DatabaseConfiguration;
 
-
     private constructor() { };
 
-
-    public static setConnection(): any {
+    public static setConnection(): DatabaseConnection {
 
         if (DatabaseConnection.connect == null) {
             DatabaseConnection.connect = new DatabaseConnection()
@@ -21,7 +19,6 @@ export class DatabaseConnection {
 
         return DatabaseConnection.connect;
     }
-
 
     public configure(databaseConfiguration: DatabaseConfiguration) {
         this.configuration = databaseConfiguration;
@@ -32,13 +29,7 @@ export class DatabaseConnection {
         // Si la base de datos nos ha sido configurada...
         if (!this.configuration) throw new Error('DatabaseProvider is not configured yet.');
 
-        const { type,
-            host,
-            port,
-            username,
-            password,
-            database,
-            ssl } = this.configuration;
+        const { type, host, port, username, password, database, ssl } = this.configuration;
 
         this.connection = await createConnection({
             type, host, port, username, password, database,
@@ -48,13 +39,12 @@ export class DatabaseConnection {
             entities: [
                 User
             ],
-            autoSchemaSync: true
+            autoSchemaSync: true // OJO
         } as any);
 
         return this.connection;
 
     }
-
 }
 
 
