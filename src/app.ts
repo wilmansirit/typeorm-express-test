@@ -5,8 +5,15 @@ import * as express from "express";
 import * as bodyParser from "body-parser";
 import { Request, Response } from "express";
 import { Routes } from "./routes";
+import { Connection } from 'typeorm';
+import { User } from './entity/User';
 
-DatabaseConnection.configure({
+
+// Set the Database connection
+const database = DatabaseConnection.setConnection();
+
+// Configuring the database
+database.configure({
     type: 'mysql',
     host: 'localhost',
     port: 3306,
@@ -16,10 +23,7 @@ DatabaseConnection.configure({
     ssl: false
 });
 
-const createConnection = DatabaseConnection.getConnection();
-console.log("Numero de Instancias creadas: ", DatabaseConnection.numeroInstancias);
-
-createConnection.then(async connection => {
+database.getConnection().then(async (connection: Connection) => {
 
     // create express app
     const app = express();
@@ -47,8 +51,15 @@ createConnection.then(async connection => {
 
     // start express server
     app.listen(3000);
+
+
     console.log("Express server has started on port 3000. Open http://localhost:3000/users to see results");
 
-}).catch(err => console.log(err));
+
+    // const repository = connection.getRepository(User)
+    // const users = await repository.find();
+    // console.log(users);
+
+}).catch((err: any) => console.log(err));
 
 

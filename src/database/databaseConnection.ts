@@ -5,25 +5,32 @@ import { DatabaseConfiguration } from './databaseConnectionInterface'
 export class DatabaseConnection {
 
     // Declaration
-    private static connection: Connection;
-    private static configuration: DatabaseConfiguration;
-    public static numeroInstancias: number = 0;
+    private static connect: DatabaseConnection;
+    private connection: Connection;
+    private configuration: DatabaseConfiguration;
+
 
     private constructor() { };
 
-    public static configure(databaseConfiguration: DatabaseConfiguration) {
-        DatabaseConnection.configuration = databaseConfiguration;
+
+    public static setConnection(): any {
+
+        if (DatabaseConnection.connect == null) {
+            DatabaseConnection.connect = new DatabaseConnection()
+        }
+
+        return DatabaseConnection.connect;
     }
 
-    public static async getConnection(): Promise<Connection> {
 
-        // Si la conexión a bases de datos existe devuelve la conexión, si no la crea
-        if (DatabaseConnection.connection != null) return DatabaseConnection.connection;
+    public configure(databaseConfiguration: DatabaseConfiguration) {
+        this.configuration = databaseConfiguration;
+    }
 
-        DatabaseConnection.numeroInstancias++;
+    public async getConnection(): Promise<Connection> {
 
         // Si la base de datos nos ha sido configurada...
-        if (!DatabaseConnection.configuration) throw new Error('DatabaseProvider is not configured yet.');
+        if (!this.configuration) throw new Error('DatabaseProvider is not configured yet.');
 
         const { type,
             host,
@@ -31,9 +38,9 @@ export class DatabaseConnection {
             username,
             password,
             database,
-            ssl } = DatabaseConnection.configuration;
+            ssl } = this.configuration;
 
-        DatabaseConnection.connection = await createConnection({
+        this.connection = await createConnection({
             type, host, port, username, password, database,
             extra: {
                 ssl
@@ -44,7 +51,7 @@ export class DatabaseConnection {
             autoSchemaSync: true
         } as any);
 
-        return DatabaseConnection.connection;
+        return this.connection;
 
     }
 
