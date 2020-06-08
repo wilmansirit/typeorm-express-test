@@ -6,8 +6,6 @@ import * as bodyParser from "body-parser";
 import { Request, Response } from "express";
 import { Routes } from "./routes";
 import { Connection } from 'typeorm';
-import { User } from './entity/User';
-
 
 // Set the Database connection
 const database = DatabaseConnection.setConnection();
@@ -32,18 +30,23 @@ database.getConnection().then(async (connection: Connection) => {
     // register express routes from defined application routes
     Routes.forEach(route => {
 
+        // app.get('/users/, (req, res, next) => {})
         (app as any)[route.method](route.route, (req: Request, res: Response, next: Function) => {
 
             const result = (new (route.controller as any))[route.action](req, res, next);
 
             if (result instanceof Promise) {
+
                 result.then(result => result !== null && result !== undefined ? res.send(result) : undefined);
 
             } else if (result !== null && result !== undefined) {
+
                 res.json(result);
+
             }
 
         });
+
     });
 
     // setup express app here
@@ -51,6 +54,7 @@ database.getConnection().then(async (connection: Connection) => {
 
     // start express server
     app.listen(3000);
+
 
 
     console.log("Express server has started on port 3000. Open http://localhost:3000/users to see results");
